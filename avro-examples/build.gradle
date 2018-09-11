@@ -1,0 +1,44 @@
+group 'kafka-schema'
+version '1.0-SNAPSHOT'
+
+
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "com.commercehub.gradle.plugin:gradle-avro-plugin:0.15.0"
+    }
+}
+
+apply plugin: "com.commercehub.gradle.plugin.avro"
+apply plugin: "com.commercehub.gradle.plugin.avro-base"
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.apache.avro:avro:1.8.2"
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+task("generateProtocol", type: com.commercehub.gradle.plugin.avro.GenerateAvroProtocolTask) {
+    source file("src/main/resources/avro")
+    include("**/*.avdl")
+    outputDir = file("build/generated-avro-main-avpr")
+}
+
+task("generateSchema", type: com.commercehub.gradle.plugin.avro.GenerateAvroSchemaTask) {
+    dependsOn generateProtocol
+    source file("src/main/resources/avro")
+    source file("build/generated-avro-main-avpr")
+    include("**/*.avpr")
+    outputDir = file("build/generated-main-avro-avsc")
+}
+
+
